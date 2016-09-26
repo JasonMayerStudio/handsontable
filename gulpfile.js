@@ -6,7 +6,6 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  */
-
 'use strict';
 
 var gulp = require('gulp');
@@ -22,48 +21,50 @@ var devExpressionWithCodes = require('./scripts/error-codes/dev-expression-with-
 var plugins = require('gulp-load-plugins')();
 
 function getTask(name) {
-  return require(`./gulp/tasks/${name}`)(gulp, plugins);
+    return require(`./gulp/tasks/${name}`)(gulp, plugins);
 }
 
 var paths = {
-  react: {
-    src: [
-      'src/**/*.js',
-      '!src/**/__benchmarks__/**/*.js',
-      '!src/**/__tests__/**/*.js',
-      '!src/**/__mocks__/**/*.js',
-      '!src/renderers/art/**/*.js',
-      '!src/shared/vendor/**/*.js',
-    ],
-    lib: 'build/modules',
-  },
+    react: {
+        src: [
+            'src/**/*.js',
+            '!src/**/__benchmarks__/**/*.js',
+            '!src/**/__tests__/**/*.js',
+            '!src/**/__mocks__/**/*.js',
+            '!src/renderers/art/**/*.js',
+            '!src/shared/vendor/**/*.js',
+        ],
+        lib: 'build/modules',
+    },
 };
 
-var moduleMap = Object.assign(
-  {'object-assign': 'object-assign'},
-  require('fbjs/module-map'),
-  {
-    deepDiffer: 'react-native/lib/deepDiffer',
-    deepFreezeAndThrowOnMutationInDev: 'react-native/lib/deepFreezeAndThrowOnMutationInDev',
-    flattenStyle: 'react-native/lib/flattenStyle',
-    InitializeJavaScriptAppEngine: 'react-native/lib/InitializeJavaScriptAppEngine',
-    RCTEventEmitter: 'react-native/lib/RCTEventEmitter',
-    TextInputState: 'react-native/lib/TextInputState',
-    UIManager: 'react-native/lib/UIManager',
-    UIManagerStatTracker: 'react-native/lib/UIManagerStatTracker',
-    View: 'react-native/lib/View',
-  }
+var moduleMap = Object.assign({
+        'object-assign': 'object-assign'
+    },
+    require('fbjs/module-map'), {
+        deepDiffer: 'react-native/lib/deepDiffer',
+        deepFreezeAndThrowOnMutationInDev: 'react-native/lib/deepFreezeAndThrowOnMutationInDev',
+        flattenStyle: 'react-native/lib/flattenStyle',
+        InitializeJavaScriptAppEngine: 'react-native/lib/InitializeJavaScriptAppEngine',
+        RCTEventEmitter: 'react-native/lib/RCTEventEmitter',
+        TextInputState: 'react-native/lib/TextInputState',
+        UIManager: 'react-native/lib/UIManager',
+        UIManagerStatTracker: 'react-native/lib/UIManagerStatTracker',
+        View: 'react-native/lib/View',
+    }
 );
 
 var errorCodeOpts = {
-  errorMapFilePath: 'scripts/error-codes/codes.json',
+    errorMapFilePath: 'scripts/error-codes/codes.json',
 };
 
 var babelOpts = {
-  plugins: [
-    devExpressionWithCodes, // this pass has to run before `rewrite-modules`
-    [babelPluginModules, {map: moduleMap}],
-  ],
+    plugins: [
+        devExpressionWithCodes, // this pass has to run before `rewrite-modules`
+        [babelPluginModules, {
+            map: moduleMap
+        }],
+    ],
 };
 
 gulp.task('eslint', getTask('eslint'));
@@ -75,21 +76,21 @@ gulp.task('flow', getTask('flow'));
 gulp.task('version-check', getTask('version-check'));
 
 gulp.task('react:clean', function() {
-  return del([paths.react.lib]);
+    return del([paths.react.lib]);
 });
 
 gulp.task('react:modules', function() {
-  return gulp
-    .src(paths.react.src)
-    .pipe(babel(babelOpts))
-    .pipe(flatten())
-    .pipe(gulp.dest(paths.react.lib));
+    return gulp
+        .src(paths.react.src)
+        .pipe(babel(babelOpts))
+        .pipe(flatten())
+        .pipe(gulp.dest(paths.react.lib));
 });
 
 gulp.task('react:extract-errors', function() {
-  return gulp
-    .src(paths.react.src)
-    .pipe(extractErrors(errorCodeOpts));
+    return gulp
+        .src(paths.react.src)
+        .pipe(extractErrors(errorCodeOpts));
 });
 
 gulp.task('default', ['react:modules']);
